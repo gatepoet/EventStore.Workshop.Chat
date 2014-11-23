@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Chat.Console", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{1ABEE61B-D31D-4EF4-A90C-37AA421BEF0F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{CD1DD069-7517-4912-92B2-4EF7424F4D20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{1ABEE61B-D31D-4EF4-A90C-37AA421BEF0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1ABEE61B-D31D-4EF4-A90C-37AA421BEF0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1ABEE61B-D31D-4EF4-A90C-37AA421BEF0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD1DD069-7517-4912-92B2-4EF7424F4D20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD1DD069-7517-4912-92B2-4EF7424F4D20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD1DD069-7517-4912-92B2-4EF7424F4D20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD1DD069-7517-4912-92B2-4EF7424F4D20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

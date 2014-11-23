@@ -6,8 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Core;
-using EventStore.ClientAPI;
-using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
