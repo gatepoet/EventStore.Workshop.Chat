@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Core;
+using EventStore.ClientAPI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -17,10 +18,13 @@ namespace EventStore.Chat.Console
         private static bool Running = true;
         static void Main(string[] args)
         {
-            Chatter.User = args[0];
-            Chatter.ChatRoom = args[1];
-            Chatter.GroupName = args[2];
-            Chatter.Main();
+            var user = args[0];
+            var chatRoom = args[1];
+            Chatter.Init();
+            Chatter.ConnectToPersistentSubscription(
+                chatRoom,
+                args[2],
+                OnRecieved);
             while (Running)
             {
                 if (Chatter.Connected)
@@ -29,7 +33,7 @@ namespace EventStore.Chat.Console
                     if (message == "!q")
                         Running = false;
                     else
-                        Chatter.SendMessage(message, Chatter.User);
+                        Chatter.SendMessage(message, user, chatRoom);
                 }
                 else
                 {
@@ -38,5 +42,14 @@ namespace EventStore.Chat.Console
             }
         }
 
+        private static void OnRecieved(ChatMessage message)
+        {
+            var text = string.Format(
+                "{0} says:\n{1}",
+                message.User,
+                message.Message);
+
+            System.Console.WriteLine(text);
+        }
     }
 }

@@ -19,14 +19,11 @@ namespace Core
     public class Chatter
     {
         public static bool Connected;
-        public static string User;
-        public static string GroupName;
-        public static string ChatRoom;
         public static IEventStoreConnection Connection;
         public static UserCredentials _userCredentials;
         public static JsonSerializerSettings serializerSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 
-        public static void Main()
+        public static void Init()
         {
             _userCredentials = new UserCredentials("admin", "changeit");
             var settings = ConnectionSettings.Create()
@@ -40,32 +37,56 @@ namespace Core
                 new IPEndPoint(IPAddress.Parse("54.77.248.243"), 1113));
 
             Connection.Connected += OnConnected;
+            Connection.Disconnected += OnDisconnected;
+            System.Console.WriteLine("Connecting...");
             Connection.ConnectAsync();
+
+        }
+
+        private static void OnDisconnected(object sender, ClientConnectionEventArgs e)
+        {
+            Connected = false;
+        }
+
+        public static void Subscribe(
+            string room,
+            Action<ChatMessage> onRecieved)
+        {
+            Connection.SubscribeToStreamAsync(
+                room,
+                false,
+                OnRecieved(onRecieved));
+
+        }
+
+        public static void ConnectToPersistentSubscription(
+            string chatRoom,
+            string groupName,
+            Action<ChatMessage> onRecieved)
+        {
             var subSettings = PersistentSubscriptionSettingsBuilder.Create()
                 .StartFromBeginning()
                 .Build();
             Connection.CreatePersistentSubscriptionAsync(
-                ChatRoom,
-                GroupName,
+                chatRoom,
+                groupName,
                 subSettings,
                 _userCredentials);
 
             Connection.ConnectToPersistentSubscription(
-                GroupName,
-                ChatRoom,
-                ChatMessageRecieved);
-
-            System.Console.WriteLine("Connecting...");
+                groupName,
+                chatRoom,
+                OnRecievedPersistent(onRecieved));
         }
 
 
         private static void OnConnected(object sender, ClientConnectionEventArgs e)
         {
             Connected = true;
-            System.Console.WriteLine("Connected to " + ChatRoom);
+            System.Console.WriteLine("Connected");
         }
 
-        public static void SendMessage(string text, string user)
+        public static void SendMessage(string text, string user, string chatRoom)
         {
             var message = new ChatMessage
             {
@@ -84,43 +105,30 @@ namespace Core
                 new byte[0]);
 
             Connection.AppendToStreamAsync(
-                ChatRoom,
+                chatRoom,
                 ExpectedVersion.Any,
                 eventData);
         }
-        private static Dictionary<string, bool> xxx = new Dictionary<string, bool>();
-        private static void ChatMessageRecieved(EventStorePersistentSubscription sender, ResolvedEvent e)
+        public static Action<EventStoreSubscription, ResolvedEvent> OnRecieved(Action<ChatMessage> onRecieved)
         {
-            var json = Encoding.UTF8.GetString(e.Event.Data);
-            var message = JsonConvert.DeserializeObject<ChatMessage>(json);
 
-            //if (message.User == User)
-            //    return;
-            
-            var text = string.Format(
-                "{0} says:\n{1}",
-                message.User,
-                message.Message);
+            return (sender, e) =>
+            {
+                var json = Encoding.UTF8.GetString(e.Event.Data);
+                var message = JsonConvert.DeserializeObject<ChatMessage>(json);
 
-            System.Console.WriteLine(text);
-            //if (!xxx.ContainsKey(message.User))
-            //{
-            //    xxx.Add(message.User, false);
-            //}
-            //if (!xxx[message.User])
-            //{
-            //    xxx[message.User] = true;
-            //    SendMessage(message.Message, message.User);
-            //        Thread.Sleep(5000);
-            //        xxx[message.User] = false;
-            //}
+                onRecieved(message);
+            };
         }
-
-        class ChatMessage
+        public static Action<EventStorePersistentSubscription, ResolvedEvent> OnRecievedPersistent(Action<ChatMessage> onRecieved)
         {
-            public string User { get; set; }
-            public string Message { get; set; }
-        }
+            return (sender, e) =>
+            {
+                var json = Encoding.UTF8.GetString(e.Event.Data);
+                var message = JsonConvert.DeserializeObject<ChatMessage>(json);
 
+                onRecieved(message);
+            };
+        }
     }
 }
