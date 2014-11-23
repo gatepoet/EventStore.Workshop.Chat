@@ -20,7 +20,7 @@ namespace EventStore.Chat.Console
         {
             var user = args[0];
             var chatRoom = args[1];
-            Chatter.Init();
+            Chatter.Init("54.77.248.243");
             Chatter.ConnectToPersistentSubscription(
                 chatRoom,
                 args[2],

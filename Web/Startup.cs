@@ -23,7 +23,7 @@ namespace Web
 
         private static void InitHub()
         {
-            Chatter.Init();
+            Chatter.Init("54.77.248.243");
         }
     }
 }

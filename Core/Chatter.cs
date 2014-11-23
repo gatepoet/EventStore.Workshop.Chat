@@ -23,7 +23,7 @@ namespace Core
         public static UserCredentials _userCredentials;
         public static JsonSerializerSettings serializerSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 
-        public static void Init()
+        public static void Init(string ipAddress)
         {
             _userCredentials = new UserCredentials("admin", "changeit");
             var settings = ConnectionSettings.Create()
@@ -34,7 +34,7 @@ namespace Core
 
             Connection = EventStoreConnection.Create(
                 settings,
-                new IPEndPoint(IPAddress.Parse("54.77.248.243"), 1113));
+                new IPEndPoint(IPAddress.Parse(ipAddress), 1113));
 
             Connection.Connected += OnConnected;
             Connection.Disconnected += OnDisconnected;
