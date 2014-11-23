@@ -20,6 +20,7 @@ namespace Core
     {
         public static bool Connected;
         public static string User;
+        public static string GroupName;
         public static string ChatRoom;
         public static IEventStoreConnection Connection;
         public static UserCredentials _userCredentials;
@@ -40,14 +41,23 @@ namespace Core
 
             Connection.Connected += OnConnected;
             Connection.ConnectAsync();
-            Connection.SubscribeToStreamAsync(
+            var subSettings = PersistentSubscriptionSettingsBuilder.Create()
+                .StartFromBeginning()
+                .Build();
+            Connection.CreatePersistentSubscriptionAsync(
                 ChatRoom,
-                false,
-                ChatMessageRecieved);
+                GroupName,
+                subSettings,
+                _userCredentials);
 
+            Connection.ConnectToPersistentSubscription(
+                GroupName,
+                ChatRoom,
+                ChatMessageRecieved);
 
             System.Console.WriteLine("Connecting...");
         }
+
 
         private static void OnConnected(object sender, ClientConnectionEventArgs e)
         {
@@ -78,32 +88,32 @@ namespace Core
                 ExpectedVersion.Any,
                 eventData);
         }
-        private static Dictionary<string, bool> xxx = new Dictionary<string, bool>(); 
-        private static void ChatMessageRecieved(EventStoreSubscription sender, ResolvedEvent e)
+        private static Dictionary<string, bool> xxx = new Dictionary<string, bool>();
+        private static void ChatMessageRecieved(EventStorePersistentSubscription sender, ResolvedEvent e)
         {
             var json = Encoding.UTF8.GetString(e.Event.Data);
             var message = JsonConvert.DeserializeObject<ChatMessage>(json);
 
-            if (message.User == User)
-                return;
-
+            //if (message.User == User)
+            //    return;
+            
             var text = string.Format(
                 "{0} says:\n{1}",
                 message.User,
                 message.Message);
 
             System.Console.WriteLine(text);
-            if (!xxx.ContainsKey(message.User))
-            {
-                xxx.Add(message.User, false);
-            }
-            if (!xxx[message.User])
-            {
-                xxx[message.User] = true;
-                SendMessage(message.Message, message.User);
-                    Thread.Sleep(5000);
-                    xxx[message.User] = false;
-            }
+            //if (!xxx.ContainsKey(message.User))
+            //{
+            //    xxx.Add(message.User, false);
+            //}
+            //if (!xxx[message.User])
+            //{
+            //    xxx[message.User] = true;
+            //    SendMessage(message.Message, message.User);
+            //        Thread.Sleep(5000);
+            //        xxx[message.User] = false;
+            //}
         }
 
         class ChatMessage

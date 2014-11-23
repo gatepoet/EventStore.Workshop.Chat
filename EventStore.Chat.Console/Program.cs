@@ -19,6 +19,7 @@ namespace EventStore.Chat.Console
         {
             Chatter.User = args[0];
             Chatter.ChatRoom = args[1];
+            Chatter.GroupName = args[2];
             Chatter.Main();
             while (Running)
             {
