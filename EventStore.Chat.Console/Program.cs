@@ -20,10 +20,12 @@ namespace EventStore.Chat.Console
         {
             var user = args[0];
             var chatRoom = args[1];
-            Chatter.Init("54.77.248.243");
-            Chatter.ConnectToPersistentSubscription(
+            var ipAddress = args.Length > 2
+                ? args[3]
+                : "54.77.248.243";
+            Chatter.Init(ipAddress);
+            Chatter.Subscribe(
                 chatRoom,
-                args[2],
                 OnRecieved);
             while (Running)
             {

@@ -20,7 +20,10 @@ namespace Web.Models
             if (subjects.ContainsKey(room))
                 return;
 
-            subjects.Add(room, new Subject<ChatMessage>());
+            var subject = new Subject<ChatMessage>();
+            subjects.Add(room, subject);
+
+            subject.ToClientside().Observable<ChatHub>("onMessage");
 
             Chatter.Subscribe(
                 room,
